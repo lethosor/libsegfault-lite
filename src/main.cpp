@@ -93,5 +93,5 @@ static void con() {
 }
 
 #ifndef constructor_support
-int unused = con();
+int unused = (con(), 0);
 #endif
