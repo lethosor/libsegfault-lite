@@ -40,7 +40,24 @@ static void con() {
     char* raw_signals = getenv("LSFL_SIGNALS");
     std::set<int> signals;
     if (raw_signals) {
-
+        std::string tmp = raw_signals;
+        for (size_t i = 0; i < tmp.size(); i++)
+            tmp[i] = toupper(tmp[i]);
+        size_t start = 0, end;
+        while (start < tmp.size()) {
+            end = tmp.find(' ', start);
+            if (end == std::string::npos)
+                end = tmp.size();
+            std::string name = tmp.substr(start, end - start);
+            int sig = signal_id(name, -1);
+            if (sig == -1)
+                sig = signal_id(std::string("SIG") + name, -1);
+            if (sig == -1)
+                fprintf(stderr, "libsegfault-lite: Unrecognized signal: %s\n", name.c_str());
+            else
+                signals.insert(sig);
+            start = end + 1;
+        }
     }
     else {
         signals.insert(SIGSEGV);
