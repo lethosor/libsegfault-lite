@@ -36,6 +36,18 @@ static void con() {
     map(SIGINT);
     map(SIGSEGV);
     map(SIGTERM);
+    #ifdef SIGBUS
+        map(SIGBUS);
+    #endif
+    #ifdef SIGHUP
+        map(SIGHUP);
+    #endif
+    #ifdef SIGKILL
+        map(SIGKILL);
+    #endif
+    #ifdef SIGQUIT
+        map(SIGQUIT);
+    #endif
     #undef map
     char* raw_signals = getenv("LSFL_SIGNALS");
     std::set<int> signals;
@@ -49,13 +61,19 @@ static void con() {
             if (end == std::string::npos)
                 end = tmp.size();
             std::string name = tmp.substr(start, end - start);
-            int sig = signal_id(name, -1);
-            if (sig == -1)
-                sig = signal_id(std::string("SIG") + name, -1);
-            if (sig == -1)
-                fprintf(stderr, "libsegfault-lite: Unrecognized signal: %s\n", name.c_str());
-            else
-                signals.insert(sig);
+            if (name == "ALL") {
+                for (auto it = signal_ids->begin(); it != signal_ids->end(); ++it)
+                    signals.insert(it->second);
+            }
+            else {
+                int sig = signal_id(name, -1);
+                if (sig == -1)
+                    sig = signal_id(std::string("SIG") + name, -1);
+                if (sig == -1)
+                    fprintf(stderr, "libsegfault-lite: Unrecognized signal: %s\n", name.c_str());
+                else
+                    signals.insert(sig);
+            }
             start = end + 1;
         }
     }
