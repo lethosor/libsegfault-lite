@@ -80,7 +80,16 @@ static void con() {
     else {
         signals.insert(SIGSEGV);
     }
-    libsegfault_lite_init(signals);
+    char* raw_depth = getenv("LSFL_DEPTH");
+    int depth = 20;
+    if (raw_depth) {
+        depth = atoi(raw_depth);
+        if (depth < 2) {
+            fprintf(stderr, "Invalid depth: %s (must be at least 2)\n", raw_depth);
+            depth = 20;
+        }
+    }
+    libsegfault_lite_init(signals, depth);
 }
 
 #ifndef constructor_support
