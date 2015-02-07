@@ -48,6 +48,9 @@ static void con() {
     #ifdef SIGQUIT
         map(SIGQUIT);
     #endif
+    #ifdef SIGTRAP
+        map(SIGTRAP);
+    #endif
     #undef map
     char* raw_signals = getenv("LSFL_SIGNALS");
     std::set<int> signals;
