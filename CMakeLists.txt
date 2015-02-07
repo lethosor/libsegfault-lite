@@ -34,8 +34,8 @@ if(APPLE)
         LINK_FLAGS "-m32"
     )
     add_custom_command(
-        TARGET segfault-lite
-        POST_BUILD
+        TARGET segfault-lite32
+        PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E rename libsegfault-lite.dylib libsegfault-lite64.dylib
     )
     add_custom_command(
@@ -52,4 +52,10 @@ if(BUILD_EXAMPLES)
     add_executable(bad-example examples/bad.cpp examples/boilerplate.cpp)
     add_dependencies(good-example segfault-lite)
     add_dependencies(bad-example segfault-lite)
+
+    add_executable(info examples/info.cpp)
+    target_link_libraries(info segfault-lite)
+    if(APPLE)
+        add_dependencies(info segfault-lite32)
+    endif()
 endif()
