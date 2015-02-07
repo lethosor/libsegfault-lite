@@ -12,12 +12,13 @@ void libsegfault_lite_handler (int sig_id) {
         return;
     }
     in_handler = 1;
-    fprintf(stderr, "Signal %i (%s):\n", sig_id, signal_name(sig_id).c_str());
+    // Restore default handler
+    signal(sig_id, SIG_DFL);
+    fprintf(stderr, "\nSignal %i (%s):\n", sig_id, signal_name(sig_id).c_str());
     void * stack[20];
     size_t backtrace_length = backtrace(stack, 20);
     backtrace_symbols_fd(stack, backtrace_length, STDERR_FILENO);
-    // Restore and trigger default handler
-    signal(sig_id, SIG_DFL);
+    // Trigger default handler
     raise(sig_id);
 }
 
