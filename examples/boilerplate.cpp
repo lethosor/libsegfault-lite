@@ -1,15 +1,11 @@
-#include <cstdio>
-
-void a();
-void b();
-void c();
+#include "boilerplate.h"
 
 void print(const char *text) {
     printf("text: %s\n", text);
 };
-void (*func_ptr)(const char*) = NULL;
 
 int main() {
+    printf("func_ptr = %p\n", func_ptr);
     a();
     return 0;
 }

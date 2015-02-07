@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(libsegfault-lite)
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CMAKE_BUILD_TYPE Release)
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "In-source builds are not allowed.")
@@ -24,6 +24,6 @@ add_library(segfault-lite SHARED ${LIBRARY_SOURCES})
 
 option(BUILD_EXAMPLES "Build example programs" OFF)
 if(BUILD_EXAMPLES)
-    add_executable(good-example examples/good.cpp)
-    add_executable(bad-example examples/bad.cpp)
+    add_executable(good-example examples/good.cpp examples/boilerplate.cpp)
+    add_executable(bad-example examples/bad.cpp examples/boilerplate.cpp)
 endif()
