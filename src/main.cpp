@@ -98,3 +98,10 @@ static void con() {
 #ifndef constructor_support
 int unused = (con(), 0);
 #endif
+
+void libsegfault_lite_info() {
+    printf("libsegfault-lite: version %s\n", libsegfault_lite_version);
+    printf("Supported signals:\n");
+    for (auto it = signal_ids->begin(); it != signal_ids->end(); ++it)
+        printf("  %-8s (%i)\n", it->first.c_str(), it->second);
+}
