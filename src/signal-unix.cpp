@@ -1,3 +1,4 @@
+#include <cxxabi.h>
 #include <execinfo.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -18,7 +19,28 @@ void libsegfault_lite_handler (int sig_id) {
     fprintf(stderr, "\nSignal %i (%s):\n", sig_id, signal_name(sig_id).c_str());
     void * stack[max_depth];
     size_t backtrace_length = backtrace(stack, max_depth);
-    backtrace_symbols_fd(stack, backtrace_length, STDERR_FILENO);
+    char** stack_trace = backtrace_symbols(stack, backtrace_length);
+    for (size_t i = 0; i < backtrace_length; i++) {
+        std::string line = stack_trace[i];
+        size_t start = line.find(" 0x"),
+            end, length;
+        if (start != std::string::npos)
+            start = line.find(" ", start + 1) + 1;
+        if (start != std::string::npos) {
+            end = line.find(" ", start);
+            if (end != std::string::npos) {
+                length = end - start;
+                int err = 1;
+                char* demangled = abi::__cxa_demangle(line.substr(start, length).c_str(), NULL, NULL, &err);
+                if (!err) {
+                    line.replace(start, length, std::string(demangled));
+                }
+                free(demangled);
+            }
+        }
+        fprintf(stderr, "%s\n", line.c_str());
+    }
+    free(stack_trace);
     // Trigger default handler
     raise(sig_id);
 }
