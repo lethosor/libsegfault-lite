@@ -40,6 +40,7 @@ void libsegfault_lite_handler (int sig_id) {
         }
         fprintf(stderr, "%s\n", line.c_str());
     }
+    fflush(stderr);
     free(stack_trace);
     // Trigger default handler
     raise(sig_id);
