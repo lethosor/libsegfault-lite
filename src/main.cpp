@@ -1,17 +1,18 @@
 #include <map>
-#include "libsegfault-lite.h"
+#include "libsighandler.h"
+using namespace libsighandler;
 
 std::map<int, std::string> *signal_names;
 std::map<std::string, int> *signal_ids;
 
-std::string signal_name (int sig, std::string defval /* = "" */) {
+std::string libsighandler::signal_name (int sig, std::string defval /* = "" */) {
     auto it = signal_names->find(sig);
     if (it != signal_names->end())
         return it->second;
     return defval;
 }
 
-int signal_id (std::string name, int defval /* = -1 */) {
+int libsighandler::signal_id (std::string name, int defval /* = -1 */) {
     auto it = signal_ids->find(name);
     if (it != signal_ids->end())
         return it->second;
@@ -52,7 +53,7 @@ static void con() {
         map(SIGTRAP);
     #endif
     #undef map
-    char* raw_signals = getenv("LSFL_SIGNALS");
+    char* raw_signals = getenv("LSH_SIGNALS");
     std::set<int> signals;
     if (raw_signals) {
         std::string tmp = raw_signals;
@@ -73,7 +74,7 @@ static void con() {
                 if (sig == -1)
                     sig = signal_id(std::string("SIG") + name, -1);
                 if (sig == -1)
-                    fprintf(stderr, "libsegfault-lite: Unrecognized signal: %s\n", name.c_str());
+                    fprintf(stderr, "libsighandler: Unrecognized signal: %s\n", name.c_str());
                 else
                     signals.insert(sig);
             }
@@ -83,7 +84,7 @@ static void con() {
     else {
         signals.insert(SIGSEGV);
     }
-    char* raw_depth = getenv("LSFL_DEPTH");
+    char* raw_depth = getenv("LSH_DEPTH");
     int depth = 20;
     if (raw_depth) {
         depth = atoi(raw_depth);
@@ -92,15 +93,15 @@ static void con() {
             depth = 20;
         }
     }
-    libsegfault_lite_init(signals, depth);
+    init_handler(signals, depth);
 }
 
 #ifndef constructor_support
 int unused = (con(), 0);
 #endif
 
-void libsegfault_lite_info() {
-    printf("libsegfault-lite: version %s\n", libsegfault_lite_version);
+void libsighandler::info() {
+    printf("libsighandler: version %s\n", libsighandler::version);
     printf("Supported signals:\n");
     for (auto it = signal_ids->begin(); it != signal_ids->end(); ++it)
         printf("  %-8s (%i)\n", it->first.c_str(), it->second);

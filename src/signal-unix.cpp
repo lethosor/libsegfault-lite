@@ -4,7 +4,8 @@
 #include <unistd.h>
 #include <termios.h>
 
-#include "libsegfault-lite.h"
+#include "libsighandler.h"
+using namespace libsighandler;
 
 static struct termios* orig_termios = NULL;
 
@@ -13,7 +14,7 @@ static int max_depth;
 
 volatile static std::sig_atomic_t in_handler = 0;
 
-void libsegfault_lite_handler (int sig_id) {
+void signal_handler (int sig_id) {
     if (in_handler) {
         raise(sig_id);
         return;
@@ -25,7 +26,7 @@ void libsegfault_lite_handler (int sig_id) {
         fprintf(stderr, "Could not reset stderr\n");
     fprintf(stderr, "\nSignal %i (%s):\n", sig_id, signal_name(sig_id).c_str());
     size_t backtrace_length = backtrace(stack, max_depth);
-    if (!getenv("LSFL_DEMANGLE")) {
+    if (!getenv("LSH_DEMANGLE")) {
         backtrace_symbols_fd(stack, backtrace_length, STDERR_FILENO);
     }
     else {
@@ -57,12 +58,12 @@ void libsegfault_lite_handler (int sig_id) {
     raise(sig_id);
 }
 
-void libsegfault_lite_init (std::set<int> &signals, int depth) {
+void libsighandler::init_handler (std::set<int> &signals, int depth) {
     max_depth = depth;
     stack = (void**)malloc(sizeof(void*) * max_depth);
     orig_termios = (struct termios*)calloc(1, sizeof(struct termios));
     tcgetattr(STDERR_FILENO, orig_termios);
     for (auto it = signals.begin(); it != signals.end(); it++) {
-        signal(*it, libsegfault_lite_handler);
+        signal(*it, signal_handler);
     }
 }

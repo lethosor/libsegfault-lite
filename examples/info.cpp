@@ -1,6 +1,6 @@
-#include "libsegfault-lite.h"
+#include "libsighandler.h"
 
 int main() {
-    libsegfault_lite_info();
+    libsighandler::info();
     return 0;
 }
